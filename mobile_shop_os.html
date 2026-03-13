@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MobileOS — Shop Management</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg0: #0a0a0b;
+    --bg1: #111114;
+    --bg2: #18181d;
+    --bg3: #202028;
+    --bg4: #2a2a35;
+    --accent: #f97316;
+    --accent2: #fb923c;
+    --accent-dim: rgba(249,115,22,0.12);
+    --accent-dim2: rgba(249,115,22,0.06);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.12);
+    --red: #ef4444;
+    --red-dim: rgba(239,68,68,0.12);
+    --blue: #60a5fa;
+    --blue-dim: rgba(96,165,250,0.1);
+    --text0: #f4f4f5;
+    --text1: #a1a1aa;
+    --text2: #52525b;
+    --border: rgba(255,255,255,0.06);
+    --border2: rgba(255,255,255,0.1);
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  html, body {
+    background: var(--bg0);
+    color: var(--text0);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    height: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* LAYOUT */
+  .shell {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    grid-template-rows: 56px 1fr;
+    min-height: 100vh;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    grid-column: 1 / -1;
+    background: var(--bg1);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: -0.5px;
+    color: var(--text0);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.85); }
+  }
+  .topbar-search {
+    flex: 1;
+    max-width: 340px;
+    margin-left: auto;
+    position: relative;
+  }
+  .topbar-search input {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text0);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 8px 14px 8px 36px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .topbar-search input:focus { border-color: var(--accent); }
+  .topbar-search input::placeholder { color: var(--text2); }
+  .search-icon {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--text2); font-size: 13px;
+  }
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 16px;
+  }
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    border: 1.5px solid var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+    cursor: pointer;
+  }
+  .badge-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    border: 2px solid var(--bg1);
+    position: absolute;
+    top: -1px; right: -1px;
+  }
+  .notif-btn {
+    position: relative;
+    width: 32px; height: 32px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--text1);
+    transition: all 0.2s;
+    font-size: 15px;
+  }
+  .notif-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* SIDEBAR */
+  .sidebar {
+    background: var(--bg1);
+    border-right: 1px solid var(--border);
+    padding: 20px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .nav-section-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text2);
+    padding: 12px 10px 6px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    color: var(--text1);
+    font-size: 13.5px;
+    font-weight: 400;
+    transition: all 0.15s;
+    position: relative;
+    text-decoration: none;
+  }
+  .nav-item:hover { background: var(--bg3); color: var(--text0); }
+  .nav-item.active {
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 20%; bottom: 20%;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 0 3px 3px 0;
+  }
+  .nav-icon { width: 16px; text-align: center; font-size: 15px; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--accent);
+    color: white;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+  }
+  .sidebar-bottom {
+    margin-top: auto;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+
+  /* MAIN */
+  .main {
+    background: var(--bg0);
+    padding: 28px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text0);
+  }
+  .page-sub {
+    font-size: 13px;
+    color: var(--text1);
+    margin-top: 3px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 18px;
+    border-radius: var(--radius);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: none;
+    outline: none;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-ghost {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    color: var(--text1);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* STAT CARDS */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .stat-card {
+    background: var(--bg1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: var(--border2); }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+  .stat-card.orange::after { background: var(--accent); }
+  .stat-card.green::after { background: var(--green); }
+  .stat-card.blue::after { background: var(--blue); }
+  .stat-card.red::after { background: var(--red); }
+
+  .stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text2);
+    margin-bottom: 12px;
+  }
+  .stat-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: var(--text0);
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+  .stat-footer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+  }
+  .change-up { color: var(--green); }
+  .change-down { color: var(--red); }
+  .stat-period { color: var(--text2); }
+  .stat-icon {
+    position: absolute;
+    right: 16px; top: 16px;
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+  }
+  .stat-icon.orange { background: var(--accent-dim); }
+  .stat-icon.green { background: var(--green-dim); }
+  .stat-icon.blue { background: var(--blue-dim); }
+  .stat-icon.red { background: var(--red-dim); }
+
+  /* TWO COLUMN */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 16px;
+    align-items: start;
+  }
+
+  /* CARD */
+  .card {
+    background: var(--bg1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text0);
+  }
+  .card-action {
+    font-size: 12px;
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .card-action:hover { text-decoration: underline; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  thead th {
+    text-align: left;
+    padding: 10px 20px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text2);
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+    cursor: pointer;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--bg2); }
+  td {
+    padding: 13px 20px;
+    font-size: 13px;
+    color: var(--text0);
+    vertical-align: middle;
+  }
+  .imei-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text1);
+    letter-spacing: 0.03em;
+  }
+  .device-name { font-weight: 500; }
+  .device-model { font-size: 11px; color: var(--text2); margin-top: 2px; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.02em;
+  }
+  .badge-new { background: var(--green-dim); color: var(--green); }
+  .badge-used { background: var(--blue-dim); color: var(--blue); }
+  .badge-repair { background: rgba(251,146,60,0.12); color: var(--accent2); }
+  .badge-sold { background: var(--bg3); color: var(--text2); }
+  .badge-refurb { background: rgba(168,85,247,0.12); color: #c084fc; }
+
+  .profit-pos { color: var(--green); font-family: 'DM Mono', monospace; font-size: 12px; }
+  .profit-neg { color: var(--red); font-family: 'DM Mono', monospace; font-size: 12px; }
+
+  /* MINI ACTION BTNS */
+  .row-actions { display: flex; gap: 6px; opacity: 0; transition: opacity 0.15s; }
+  tbody tr:hover .row-actions { opacity: 1; }
+  .row-btn {
+    width: 26px; height: 26px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.15s;
+    color: var(--text1);
+  }
+  .row-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* RECENT REPAIRS SIDEBAR */
+  .repair-list { padding: 4px 0; }
+  .repair-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.12s;
+    cursor: pointer;
+  }
+  .repair-item:hover { background: var(--bg2); }
+  .repair-item:last-child { border-bottom: none; }
+  .repair-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .dot-pending { background: var(--accent); box-shadow: 0 0 6px var(--accent); }
+  .dot-done { background: var(--green); }
+  .dot-waiting { background: var(--blue); }
+  .repair-info { flex: 1; min-width: 0; }
+  .repair-name {
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .repair-issue { font-size: 11px; color: var(--text1); margin-top: 2px; }
+  .repair-price {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    font-weight: 500;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* CHART BAR */
+  .chart-area {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .chart-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .chart-bar-label { width: 80px; font-size: 12px; color: var(--text1); text-align: right; flex-shrink: 0; }
+  .chart-bar-track {
+    flex: 1;
+    height: 8px;
+    background: var(--bg3);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .chart-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--accent);
+    transition: width 1s cubic-bezier(0.4,0,0.2,1);
+  }
+  .chart-bar-fill.green { background: var(--green); }
+  .chart-bar-fill.blue { background: var(--blue); }
+  .chart-bar-val { width: 52px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text0); flex-shrink: 0; }
+
+  /* MINI SPARKLINE SVG AREA */
+  .sparklines { display: flex; gap: 0; padding: 0 20px 20px; align-items: flex-end; height: 60px; }
+  .spark-bar { flex: 1; margin: 0 2px; border-radius: 3px 3px 0 0; background: var(--accent-dim); transition: background 0.15s; cursor: pointer; }
+  .spark-bar:hover, .spark-bar.active { background: var(--accent); }
+
+  /* BOTTOM ROW */
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+
+  /* QUICK ACTIONS */
+  .quick-actions { display: flex; flex-direction: column; gap: 8px; padding: 16px; }
+  .quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text0);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .quick-action-btn:hover { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+  .qa-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .qa-sub { font-size: 11px; color: var(--text2); margin-top: 1px; font-weight: 400; }
+
+  /* UDHAAR */
+  .udhaar-list { padding: 4px 0; }
+  .udhaar-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .udhaar-item:hover { background: var(--bg2); }
+  .udhaar-item:last-child { border-bottom: none; }
+  .udhaar-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--bg3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text1);
+    flex-shrink: 0;
+  }
+  .udhaar-name { flex: 1; font-size: 13px; font-weight: 500; }
+  .udhaar-days { font-size: 11px; color: var(--text2); }
+  .udhaar-amount { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--red); font-weight: 500; }
+
+  /* IMEI scanner widget */
+  .scan-area {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .scan-box {
+    width: 100%;
+    height: 100px;
+    background: var(--bg2);
+    border: 1.5px dashed var(--border2);
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .scan-box:hover {
+    border-color: var(--accent);
+    background: var(--accent-dim2);
+  }
+  .scan-line {
+    position: absolute;
+    left: 10%; right: 10%;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    animation: scanline 2.2s ease-in-out infinite;
+    opacity: 0.7;
+  }
+  @keyframes scanline {
+    0% { top: 15%; opacity: 0; }
+    10% { opacity: 0.7; }
+    90% { opacity: 0.7; }
+    100% { top: 85%; opacity: 0; }
+  }
+  .scan-icon { font-size: 28px; }
+  .scan-text { font-size: 12px; color: var(--text1); }
+  .imei-input-row { display: flex; gap: 8px; width: 100%; }
+  .imei-input {
+    flex: 1;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text0);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .imei-input:focus { border-color: var(--accent); }
+  .imei-input::placeholder { color: var(--text2); font-family: 'DM Sans', monospace; letter-spacing: 0; }
+
+  /* RESPONSIVE adjustments for small screens */
+  @media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+    .three-col { grid-template-columns: 1fr; }
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 4px; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .anim-1 { animation: fadeUp 0.4s ease both; }
+  .anim-2 { animation: fadeUp 0.4s 0.08s ease both; }
+  .anim-3 { animation: fadeUp 0.4s 0.16s ease both; }
+  .anim-4 { animation: fadeUp 0.4s 0.24s ease both; }
+  .anim-5 { animation: fadeUp 0.4s 0.32s ease both; }
+
+  /* TOOLTIP on hover rows */
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+  }
+  .dot-g { background: var(--green); }
+  .dot-o { background: var(--accent); }
+  .dot-b { background: var(--blue); }
+  .dot-r { background: var(--red); }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="shell">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-dot"></div>
+      MobileOS
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-left:8px;font-family:'DM Mono',monospace;">v1.0</div>
+    <div class="topbar-search">
+      <span class="search-icon">⌕</span>
+      <input type="text" placeholder="Search IMEI, device, customer…" id="searchInput">
+    </div>
+    <div class="topbar-right">
+      <div class="notif-btn" title="Notifications">
+        🔔
+        <div class="badge-dot"></div>
+      </div>
+      <div class="avatar" title="Divyansh">D</div>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <span class="nav-section-label">Main</span>
+    <div class="nav-item active">
+      <span class="nav-icon">📊</span> Dashboard
+    </div>
+    <div class="nav-item" onclick="this.closest('.shell').querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active')">
+      <span class="nav-icon">📱</span> Inventory
+      <span class="nav-badge">48</span>
+    </div>
+    <div class="nav-item" onclick="this.closest('.shell').querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active')">
+      <span class="nav-icon">🔧</span> Repairs
+      <span class="nav-badge">7</span>
+    </div>
+    <div class="nav-item" onclick="this.closest('.shell').querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active')">
+      <span class="nav-icon">💸</span> Sales
+    </div>
+    <div class="nav-item" onclick="this.closest('.shell').querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active')">
+      <span class="nav-icon">📒</span> Udhaar
+    </div>
+
+    <span class="nav-section-label">Reports</span>
+    <div class="nav-item" onclick="this.closest('.shell').querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active')">
+      <span class="nav-icon">📈</span> Analytics
+    </div>
+    <div class="nav-item" onclick="this.closest('.shell').querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active')">
+      <span class="nav-icon">🧾</span> GST Reports
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="nav-item" onclick="this.closest('.shell').querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));this.classList.add('active')">
+        <span class="nav-icon">⚙️</span> Settings
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header anim-1">
+      <div>
+        <div class="page-title">Good morning, Divyansh 👋</div>
+        <div class="page-sub">Friday, 13 March 2026 — Ludhiana Store</div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" onclick="alert('Exporting report…')">⬇ Export</button>
+        <button class="btn btn-primary" onclick="document.getElementById('addModal').style.display='flex'">+ Add Device</button>
+      </div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <div class="stats-grid anim-2">
+      <div class="stat-card orange">
+        <div class="stat-icon orange">💰</div>
+        <div class="stat-label">Today's Revenue</div>
+        <div class="stat-value">₹18,450</div>
+        <div class="stat-footer">
+          <span class="change-up">↑ 12%</span>
+          <span class="stat-period">vs yesterday</span>
+        </div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon green">📱</div>
+        <div class="stat-label">Devices in Stock</div>
+        <div class="stat-value">48</div>
+        <div class="stat-footer">
+          <span class="change-up">+3</span>
+          <span class="stat-period">added this week</span>
+        </div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon blue">🔧</div>
+        <div class="stat-label">Active Repairs</div>
+        <div class="stat-value">7</div>
+        <div class="stat-footer">
+          <span class="change-down">2 overdue</span>
+        </div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon red">📒</div>
+        <div class="stat-label">Udhaar Pending</div>
+        <div class="stat-value">₹32,200</div>
+        <div class="stat-footer">
+          <span class="change-down">↑ ₹4,500</span>
+          <span class="stat-period">since Monday</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVENTORY TABLE + REPAIRS SIDEBAR -->
+    <div class="two-col anim-3">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Inventory</span>
+          <div style="display:flex;gap:12px;align-items:center">
+            <select id="filterStatus" onchange="filterTable()" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text1);font-size:12px;padding:5px 10px;outline:none;cursor:pointer">
+              <option value="all">All Status</option>
+              <option value="new">New</option>
+              <option value="used">Used</option>
+              <option value="repair">In Repair</option>
+              <option value="sold">Sold</option>
+            </select>
+            <span class="card-action">View all →</span>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="inventoryTable">
+            <thead>
+              <tr>
+                <th>Device</th>
+                <th>IMEI</th>
+                <th>Bought</th>
+                <th>Status</th>
+                <th>Profit</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="inventoryBody">
+              <!-- filled by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- REPAIR SIDEBAR -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Repairs</span>
+          <span class="card-action">+ Add</span>
+        </div>
+        <div id="repairList" class="repair-list">
+          <!-- filled by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div class="three-col anim-4">
+
+      <!-- WEEKLY SALES CHART -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Weekly Sales</span>
+          <span style="font-size:11px;color:var(--text2);font-family:'DM Mono',monospace">This week</span>
+        </div>
+        <div class="chart-area">
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Mon</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:72%"></div></div>
+            <div class="chart-bar-val">₹12.4k</div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Tue</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill green" style="width:90%"></div></div>
+            <div class="chart-bar-val">₹15.8k</div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Wed</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:55%"></div></div>
+            <div class="chart-bar-val">₹9.2k</div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Thu</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill blue" style="width:68%"></div></div>
+            <div class="chart-bar-val">₹11.6k</div>
+          </div>
+          <div class="chart-bar-row">
+            <div class="chart-bar-label">Fri</div>
+            <div class="chart-bar-track"><div class="chart-bar-fill" style="width:40%"></div></div>
+            <div class="chart-bar-val">₹6.8k</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Quick Actions</span>
+        </div>
+        <div class="quick-actions">
+          <div class="quick-action-btn" onclick="document.getElementById('addModal').style.display='flex'">
+            <div class="qa-icon" style="background:var(--accent-dim)">📱</div>
+            <div>
+              <div>Add Device</div>
+              <div class="qa-sub">Scan IMEI or enter manually</div>
+            </div>
+          </div>
+          <div class="quick-action-btn" onclick="alert('New repair job form opening…')">
+            <div class="qa-icon" style="background:var(--green-dim)">🔧</div>
+            <div>
+              <div>Log Repair</div>
+              <div class="qa-sub">Record new repair job</div>
+            </div>
+          </div>
+          <div class="quick-action-btn" onclick="alert('Sell device form opening…')">
+            <div class="qa-icon" style="background:var(--blue-dim)">💸</div>
+            <div>
+              <div>Record Sale</div>
+              <div class="qa-sub">Auto-calculates profit</div>
+            </div>
+          </div>
+          <div class="quick-action-btn" onclick="alert('Udhaar entry form opening…')">
+            <div class="qa-icon" style="background:var(--red-dim)">📒</div>
+            <div>
+              <div>Add Udhaar</div>
+              <div class="qa-sub">Credit entry + WhatsApp reminder</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UDHAAR -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Udhaar Due</span>
+          <span class="card-action">Send reminders</span>
+        </div>
+        <div class="udhaar-list" id="udhaarList">
+          <div class="udhaar-item">
+            <div class="udhaar-avatar">GS</div>
+            <div>
+              <div class="udhaar-name">Gurpreet Singh</div>
+              <div class="udhaar-days">12 days overdue</div>
+            </div>
+            <div class="udhaar-amount">₹8,500</div>
+          </div>
+          <div class="udhaar-item">
+            <div class="udhaar-avatar">HK</div>
+            <div>
+              <div class="udhaar-name">Hardeep Kaur</div>
+              <div class="udhaar-days">5 days overdue</div>
+            </div>
+            <div class="udhaar-amount">₹4,200</div>
+          </div>
+          <div class="udhaar-item">
+            <div class="udhaar-avatar">MV</div>
+            <div>
+              <div class="udhaar-name">Manpreet Virk</div>
+              <div class="udhaar-days">3 days overdue</div>
+            </div>
+            <div class="udhaar-amount">₹11,000</div>
+          </div>
+          <div class="udhaar-item">
+            <div class="udhaar-avatar">JS</div>
+            <div>
+              <div class="udhaar-name">Jagtar Singh</div>
+              <div class="udhaar-days">1 day overdue</div>
+            </div>
+            <div class="udhaar-amount">₹3,700</div>
+          </div>
+          <div class="udhaar-item">
+            <div class="udhaar-avatar">BK</div>
+            <div>
+              <div class="udhaar-name">Baljit Kaur</div>
+              <div class="udhaar-days">Due today</div>
+            </div>
+            <div class="udhaar-amount">₹4,800</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ADD DEVICE MODAL -->
+<div id="addModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:1000;align-items:center;justify-content:center;" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:var(--bg1);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:28px;width:min(520px,95vw);animation:fadeUp 0.25s ease both">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:700">Add New Device</div>
+      <div onclick="document.getElementById('addModal').style.display='none'" style="cursor:pointer;color:var(--text2);font-size:20px;line-height:1">×</div>
+    </div>
+    <div class="scan-area" style="padding:0 0 20px">
+      <div class="scan-box" style="width:100%" onclick="alert('Camera scanner would activate here')">
+        <div class="scan-line"></div>
+        <div class="scan-icon">📷</div>
+        <div class="scan-text">Tap to scan IMEI barcode</div>
+      </div>
+      <div style="font-size:12px;color:var(--text2);width:100%;text-align:center">— or enter manually —</div>
+      <div class="imei-input-row">
+        <input class="imei-input" type="text" placeholder="IMEI number (15 digits)" id="imeiField" maxlength="15">
+        <button class="btn btn-ghost" onclick="lookupIMEI()">Lookup</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em">Brand</div>
+        <select id="brandField" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text0);font-size:13px;padding:9px 12px;outline:none">
+          <option>Apple</option><option>Samsung</option><option>OnePlus</option><option>Xiaomi</option><option>Realme</option><option>Vivo</option><option>Oppo</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em">Model</div>
+        <input id="modelField" type="text" placeholder="e.g. iPhone 14 Pro" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text0);font-size:13px;padding:9px 12px;outline:none;font-family:'DM Sans',sans-serif">
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em">Buying Price (₹)</div>
+        <input id="buyPriceField" type="number" placeholder="e.g. 45000" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text0);font-size:13px;padding:9px 12px;outline:none;font-family:'DM Mono',monospace">
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em">Condition</div>
+        <select id="conditionField" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text0);font-size:13px;padding:9px 12px;outline:none">
+          <option>New (Sealed)</option><option>Like New</option><option>Used - Good</option><option>Used - Fair</option><option>Refurbished</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="document.getElementById('addModal').style.display='none'">Cancel</button>
+      <button class="btn btn-primary" onclick="addDevice()">Add to Inventory</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const sb = supabase.createClient(
+  'https://ybjuhnncsvrmjwbikysn.supabase.co',
+  'sb_publishable_YTcuQRYg2omarTVd4SyRlA_Pwc5TA0_'
+);
+
+let devices = [];
+let repairs = [];
+let udhaar = [];
+
+const statusConfig = {
+  new:    { label: 'New',       cls: 'badge-new',    dot: 'dot-g' },
+  used:   { label: 'Used',      cls: 'badge-used',   dot: 'dot-b' },
+  repair: { label: 'In Repair', cls: 'badge-repair', dot: 'dot-o' },
+  sold:   { label: 'Sold',      cls: 'badge-sold',   dot: 'dot-r' },
+  refurb: { label: 'Refurb',    cls: 'badge-refurb', dot: 'dot-b' },
+};
+
+function renderTable(data) {
+  const body = document.getElementById('inventoryBody');
+  body.innerHTML = data.map(d => {
+    const s = statusConfig[d.status];
+    const profitCls = d.profit.startsWith('+') ? 'profit-pos' : (d.profit === '—' ? '' : 'profit-neg');
+    return `<tr>
+      <td>
+        <div class="device-name">${d.name}</div>
+        <div class="device-model">${d.model}</div>
+      </td>
+      <td><span class="imei-code">${d.imei}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px">${d.bought}</td>
+      <td><span class="badge ${s.cls}"><span class="status-dot ${s.dot}"></span>${s.label}</span></td>
+      <td><span class="${profitCls}">${d.profit}</span></td>
+      <td>
+        <div class="row-actions">
+          <div class="row-btn" title="View">👁</div>
+          <div class="row-btn" title="Edit">✏️</div>
+          <div class="row-btn" title="Sell">💸</div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadRepairs() {
+  const container = document.getElementById('repairList');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="repair-item">
+      <div class="repair-info">
+        <div class="repair-name" style="color:var(--text2);font-size:12px;">Loading repairs…</div>
+      </div>
+    </div>
+  `;
+
+  const { data, error } = await sb
+    .from('repairs')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error loading repairs from Supabase:', error);
+    container.innerHTML = `
+      <div class="repair-item">
+        <div class="repair-info">
+          <div class="repair-name" style="color:var(--red);font-size:12px;">Failed to load repairs.</div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  repairs = data || [];
+
+  container.innerHTML = repairs.map(r => {
+    let dotClass = 'dot-pending';
+    if (r.status === 'done') dotClass = 'dot-done';
+    else if (r.status === 'waiting') dotClass = 'dot-waiting';
+
+    const amountRaw = r.price ?? r.amount;
+    let price = '—';
+    if (typeof amountRaw === 'number') {
+      price = `₹${amountRaw.toLocaleString('en-IN')}`;
+    } else if (amountRaw != null) {
+      price = `₹${amountRaw}`;
+    }
+
+    const customer = r.customer || r.customer_name || '';
+    const issueText = r.issue || r.problem || '';
+    const subtitle = customer ? `${issueText} · ${customer}` : issueText;
+
+    return `
+      <div class="repair-item">
+        <div class="repair-dot ${dotClass}"></div>
+        <div class="repair-info">
+          <div class="repair-name">${r.device || r.device_name || 'Device'}</div>
+          <div class="repair-issue">${subtitle}</div>
+        </div>
+        <div class="repair-price">${price}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function loadDevices() {
+  const body = document.getElementById('inventoryBody');
+  body.innerHTML = `
+    <tr>
+      <td colspan="6" style="text-align:center;padding:20px;color:var(--text2);font-size:13px;">
+        Loading devices…
+      </td>
+    </tr>
+  `;
+
+  const { data, error } = await sb.from('devices').select('*');
+
+  if (error) {
+    console.error('Error loading devices from Supabase:', error);
+    body.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align:center;padding:20px;color:var(--red);font-size:13px;">
+          Failed to load devices. Please try again.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  devices = (data || []).map(row => {
+    let bought = row.buy_price;
+    if (typeof bought === 'number') {
+      bought = `₹${bought.toLocaleString('en-IN')}`;
+    } else if (bought != null) {
+      bought = `₹${bought}`;
+    } else {
+      bought = '—';
+    }
+
+    return {
+      name: row.brand,
+      model: row.model,
+      imei: row.imei,
+      bought,
+      status: row.status,
+      profit: '—',
+    };
+  });
+
+  renderTable(devices);
+}
+
+function filterTable() {
+  const val = document.getElementById('filterStatus').value;
+  const filtered = val === 'all' ? devices : devices.filter(d => d.status === val);
+  renderTable(filtered);
+}
+
+function lookupIMEI() {
+  const imei = document.getElementById('imeiField').value.trim();
+  
+  // Remove any existing feedback
+  const existing = document.getElementById('imeiFeedback');
+  if (existing) existing.remove();
+  
+  const feedback = document.createElement('div');
+  feedback.id = 'imeiFeedback';
+  feedback.style.cssText = 'font-size:12px;margin-top:8px;padding:8px 12px;border-radius:8px;font-family:DM Mono,monospace;';
+  document.getElementById('imeiField').parentNode.after(feedback);
+
+  // Validate length
+  if (imei.length !== 15 || !/^\d+$/.test(imei)) {
+    feedback.style.background = 'rgba(239,68,68,0.12)';
+    feedback.style.color = '#ef4444';
+    feedback.textContent = '✗ IMEI must be exactly 15 digits';
+    return;
+  }
+
+  // Luhn algorithm check
+  let sum = 0;
+  for (let i = 0; i < 15; i++) {
+    let d = parseInt(imei[i]);
+    if (i % 2 === 1) { d *= 2; if (d > 9) d -= 9; }
+    sum += d;
+  }
+  if (sum % 10 !== 0) {
+    feedback.style.background = 'rgba(239,68,68,0.12)';
+    feedback.style.color = '#ef4444';
+    feedback.textContent = '✗ Invalid IMEI — fails checksum verification';
+    return;
+  }
+
+  // Brand detection from TAC (first 8 digits)
+  const tac = imei.substring(0, 8);
+  const prefix2 = imei.substring(0, 2);
+  const prefix3 = imei.substring(0, 3);
+  
+  let brand = 'Unknown';
+  let model = '';
+
+  const brandMap = {
+    '35': 'Apple',
+    '01': 'Apple',
+    '49': 'Samsung',
+    '35': 'Apple',
+    '86': 'Xiaomi',
+    '46': 'Huawei',
+    '35': 'Apple',
+  };
+
+  // Detailed prefix matching
+  if (['350', '351', '352', '353', '354', '355', '356', '357', '358', '359'].some(p => imei.startsWith(p))) {
+    brand = 'Apple';
+  } else if (['490', '491', '492', '493', '494', '495'].some(p => imei.startsWith(p))) {
+    brand = 'Samsung';
+  } else if (['860', '861', '862', '863', '864', '865', '866'].some(p => imei.startsWith(p))) {
+    const subBrands = {'860': 'Xiaomi', '861': 'Realme', '862': 'OnePlus', '863': 'Vivo', '864': 'Oppo', '865': 'Xiaomi', '866': 'Poco'};
+    brand = subBrands[prefix3] || 'Chinese Brand';
+  } else if (imei.startsWith('35')) {
+    brand = 'Apple / Nokia';
+  } else if (imei.startsWith('89')) {
+    brand = 'Lava / Micromax';
+  } else if (imei.startsWith('52')) {
+    brand = 'OnePlus';
+  } else if (imei.startsWith('45')) {
+    brand = 'Motorola';
+  } else if (imei.startsWith('01')) {
+    brand = 'Samsung';
+  }
+
+  // Set brand in dropdown if match found
+  const brandSelect = document.querySelector('select');
+  if (brandSelect && brand !== 'Unknown') {
+    Array.from(brandSelect.options).forEach(opt => {
+      if (opt.text.toLowerCase().includes(brand.toLowerCase().split('/')[0].trim().toLowerCase())) {
+        brandSelect.value = opt.value;
+      }
+    });
+  }
+
+  feedback.style.background = 'rgba(34,197,94,0.12)';
+  feedback.style.color = '#22c55e';
+  feedback.textContent = `✓ Valid IMEI — Brand detected: ${brand} · TAC: ${tac}`;
+}
+
+async function addDevice() {
+  const imei = document.getElementById('imeiField').value.trim();
+  const brand = document.getElementById('brandField').value.trim();
+  const model = document.getElementById('modelField').value.trim();
+  const condition = document.getElementById('conditionField').value.trim();
+  const buyPriceRaw = document.getElementById('buyPriceField').value.trim();
+
+  if (imei.length < 15) {
+    alert('Please enter a valid 15-digit IMEI.');
+    return;
+  }
+
+  if (!brand || !model || !buyPriceRaw || !condition) {
+    alert('Please fill in all fields before adding the device.');
+    return;
+  }
+
+  const buy_price = Number(buyPriceRaw);
+  if (Number.isNaN(buy_price) || buy_price <= 0) {
+    alert('Please enter a valid buying price greater than 0.');
+    return;
+  }
+
+  const { error } = await sb.from('devices').insert([
+    {
+      imei,
+      brand,
+      model,
+      condition,
+      buy_price,
+    },
+  ]);
+
+  if (error) {
+    console.error('Error inserting device into Supabase:', error);
+    const msg = (error.message || '').toLowerCase();
+    if (error.code === '23505' || msg.includes('duplicate key') || msg.includes('already exists')) {
+      alert('A device with this IMEI already exists.');
+    } else {
+      alert('Failed to add device. Please try again.');
+    }
+    return;
+  }
+
+  document.getElementById('addModal').style.display = 'none';
+  document.getElementById('imeiField').value = '';
+  document.getElementById('modelField').value = '';
+  document.getElementById('buyPriceField').value = '';
+
+  await loadDevices();
+}
+
+async function loadUdhaar() {
+  const container = document.getElementById('udhaarList');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="udhaar-item">
+      <div>
+        <div class="udhaar-name" style="color:var(--text2);font-size:12px;">Loading udhaar…</div>
+      </div>
+    </div>
+  `;
+
+  const { data, error } = await sb
+    .from('udhaar')
+    .select('*')
+    .eq('paid', false)
+    .order('due_date', { ascending: true });
+
+  if (error) {
+    console.error('Error loading udhaar from Supabase:', error);
+    container.innerHTML = `
+      <div class="udhaar-item">
+        <div>
+          <div class="udhaar-name" style="color:var(--red);font-size:12px;">Failed to load udhaar.</div>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  udhaar = data || [];
+
+  const today = new Date();
+  container.innerHTML = udhaar.map(row => {
+    const name = row.name || row.customer_name || 'Customer';
+    const initials = name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(part => part[0]?.toUpperCase() || '')
+      .join('') || '??';
+
+    let daysLabel = 'Due today';
+    if (row.due_date) {
+      const due = new Date(row.due_date);
+      const diffMs = today.setHours(0,0,0,0) - due.setHours(0,0,0,0);
+      const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      if (days > 0) {
+        daysLabel = `${days} day${days === 1 ? '' : 's'} overdue`;
+      } else if (days < 0) {
+        const ahead = Math.abs(days);
+        daysLabel = `Due in ${ahead} day${ahead === 1 ? '' : 's'}`;
+      } else {
+        daysLabel = 'Due today';
+      }
+    }
+
+    const amountRaw = row.amount;
+    let amountText = '—';
+    if (typeof amountRaw === 'number') {
+      amountText = `₹${amountRaw.toLocaleString('en-IN')}`;
+    } else if (amountRaw != null) {
+      amountText = `₹${amountRaw}`;
+    }
+
+    return `
+      <div class="udhaar-item">
+        <div class="udhaar-avatar">${initials}</div>
+        <div>
+          <div class="udhaar-name">${name}</div>
+          <div class="udhaar-days">${daysLabel}</div>
+        </div>
+        <div class="udhaar-amount">${amountText}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function loadStats() {
+  const revenueEl = document.querySelector('.stat-card.orange .stat-value');
+  const stockEl = document.querySelector('.stat-card.green .stat-value');
+  const repairsEl = document.querySelector('.stat-card.blue .stat-value');
+  const udhaarEl = document.querySelector('.stat-card.red .stat-value');
+
+  if (revenueEl) revenueEl.textContent = '—';
+  if (stockEl) stockEl.textContent = '—';
+  if (repairsEl) repairsEl.textContent = '—';
+  if (udhaarEl) udhaarEl.textContent = '—';
+
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const dd = String(today.getDate()).padStart(2, '0');
+  const todayStr = `${yyyy}-${mm}-${dd}`;
+
+  try {
+    const [
+      devicesRes,
+      repairsRes,
+      udhaarRes,
+      salesRes,
+    ] = await Promise.all([
+      sb.from('devices').select('*', { count: 'exact', head: true }).eq('status', 'in_stock'),
+      sb.from('repairs').select('*', { count: 'exact', head: true }).in('status', ['pending', 'waiting']),
+      sb.from('udhaar').select('amount', { count: 'exact' }).eq('paid', false),
+      sb.from('sales').select('sell_price,created_at'),
+    ]);
+
+    if (devicesRes.error) {
+      console.error('Error loading devices stock stats:', devicesRes.error);
+    } else if (stockEl != null) {
+      stockEl.textContent = String(devicesRes.count ?? 0);
+    }
+
+    if (repairsRes.error) {
+      console.error('Error loading active repairs stats:', repairsRes.error);
+    } else if (repairsEl != null) {
+      repairsEl.textContent = String(repairsRes.count ?? 0);
+    }
+
+    if (udhaarRes.error) {
+      console.error('Error loading udhaar pending stats:', udhaarRes.error);
+    } else if (udhaarEl != null) {
+      const udhaarRows = udhaarRes.data || [];
+      const udhaarSum = udhaarRows.reduce((sum, row) => {
+        const val = typeof row.amount === 'number' ? row.amount : Number(row.amount || 0);
+        return sum + (Number.isNaN(val) ? 0 : val);
+      }, 0);
+      udhaarEl.textContent = `₹${udhaarSum.toLocaleString('en-IN')}`;
+    }
+
+    if (salesRes.error) {
+      console.error('Error loading today revenue stats:', salesRes.error);
+    } else if (revenueEl != null) {
+      const salesRows = salesRes.data || [];
+      const todayRevenue = salesRows.reduce((sum, row) => {
+        if (!row.created_at || !row.sell_price) return sum;
+        const created = new Date(row.created_at);
+        const cy = created.getFullYear();
+        const cm = String(created.getMonth() + 1).padStart(2, '0');
+        const cd = String(created.getDate()).padStart(2, '0');
+        const rowDateStr = `${cy}-${cm}-${cd}`;
+        if (rowDateStr !== todayStr) return sum;
+        const val = typeof row.sell_price === 'number' ? row.sell_price : Number(row.sell_price || 0);
+        return sum + (Number.isNaN(val) ? 0 : val);
+      }, 0);
+      revenueEl.textContent = `₹${todayRevenue.toLocaleString('en-IN')}`;
+    }
+  } catch (err) {
+    console.error('Unexpected error loading stats:', err);
+  }
+}
+
+// SEARCH
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  const filtered = devices.filter(d =>
+    d.name.toLowerCase().includes(q) ||
+    d.imei.includes(q) ||
+    d.model.toLowerCase().includes(q)
+  );
+  renderTable(filtered);
+});
+
+// INIT
+loadDevices();
+loadRepairs();
+loadUdhaar();
+loadStats();
+</script>
+</body>
+</html>
